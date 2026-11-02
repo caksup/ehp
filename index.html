@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EHP - Jagat Education Center</title>
+    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-   <link rel="stylesheet" href="css.css">
 </head>
 <body>
     <div class="toast" id="toast">
@@ -14,20 +14,20 @@
         <span id="toastMessage"></span>
     </div>
 
-    <header class="header">
+    <header class="header animate-slide-down">
         <div class="header-content">
             <div class="logo-section">
                 <img src="jec-logo.webp" alt="JEC Logo" class="logo" onerror="this.src='https://via.placeholder.com/42x42/4F46E5/FFFFFF?text=JEC'">
                 <div class="logo-text">
                     <h1>
-                        ENGLISH Holiday Program 2026
+                        EHP 2026
                         <div class="header-loading" id="headerLoading">
                             <div class="mini-spinner"></div>
-                            <span>Memuat...</span>
+                            <span>Loading data...</span>
                         </div>
                     </h1>
                     <span>Jagat Education Center</span>
-					<span>Jatirogo - East Java</span>
+                    <span>Jatirogo - Tuban - East Java</span>
                 </div>
             </div>
             <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
@@ -36,7 +36,7 @@
         </div>
     </header>
 
-    <div class="stats-banner" id="statsBanner">
+    <div class="stats-banner animate-fade-in" id="statsBanner">
         <div class="stats-grid">
             <div class="stat-card"><span class="material-icons-outlined">group</span><div class="stat-number" id="statTotal">0</div><div class="stat-label">Total Daftar</div></div>
             <div class="stat-card"><span class="material-icons-outlined">verified</span><div class="stat-number" id="statPaid">0</div><div class="stat-label">Booking Seat</div></div>
@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    <div class="quota-section" id="quotaSection">
+    <div class="quota-section animate-fade-in" id="quotaSection">
         <div class="quota-card">
             <div class="quota-title"><span class="material-icons-outlined">event_seat</span> Kuota Kelas (Maksimal 10 Siswa/Kelas)</div>
             <div class="quota-bars">
@@ -62,21 +62,21 @@
         </div>
     </div>
 
-    <div class="urgency-banner" id="urgencyBanner">
+    <div class="urgency-banner animate-fade-in" id="urgencyBanner">
         <div class="urgency-content">
             <span class="material-icons-outlined">local_fire_department</span>
-            <div class="urgency-text">Ayo daftar sekarang sebelum kehabisan Kuota!
-			<br /><span>Waktu Pendaftaran Mulai 1 November 2026</span></div>
+            <div class="urgency-text">Ayo daftar sekarang sebelum kehabisan Kuota!<br/>Pendaftaran Mulai 1 November 2026</div>
         </div>
     </div>
 
     <main class="main-content">
         <div class="page active" id="pageInfo">
-            <div class="info-section">
-                <h2><span class="material-icons-outlined">info</span> Tentang Program English Holiday Program</h2>
-                <p><strong>English Holiday Program (EHP)</strong> adalah program bahasa Inggris dari Jagat Education Center yang dirancang untuk meningkatkan kemampuan berbahasa Inggris siswa secara menyenangkan dan efektif dengan metode yang easy and fun learn.</p>
+            <div class="info-section animate-slide-up">
+                <h2><span class="material-icons-outlined">info</span> Tentang Program EHP 2026 JEC</h2>
+                <p><strong>English Holiday Program (EHP)</strong> adalah program intensif bahasa Inggris dari Jagat Education Center yang dirancang untuk meningkatkan kemampuan berbahasa Inggris siswa secara menyenangkan dan efektif.</p>
             </div>
-            <div class="info-section">
+            
+            <div class="info-section animate-slide-up" style="animation-delay: 0.1s;">
                 <h2><span class="material-icons-outlined">schedule</span> Detail Program</h2>
                 <ul class="info-list">
                     <li><span class="material-icons-outlined">calendar_month</span><div><strong>Periode:</strong> 10 Hari (Mulai Bulan Desember 2026)</div></li>
@@ -85,10 +85,11 @@
                     <li><span class="material-icons-outlined">groups</span><div><strong>Kelas A:</strong> Grade 2 & 3 (Kuota 10 Siswa)</div></li>
                     <li><span class="material-icons-outlined">groups</span><div><strong>Kelas B:</strong> Grade 4, 5 & 6 (Kuota 10 Siswa)</div></li>
                     <li><span class="material-icons-outlined">workspace_premium</span><div><strong>Fasilitas:</strong> Modul Belajar, ID Card, Sertifikat, Hadiah & Worksheet</div></li>
-                    <li><span class="material-icons-outlined">payments</span><div><strong>Investasi:</strong> Rp 75.000 (dari <s>Rp 150.000</s>)</div></li>
+                    <li><span class="material-icons-outlined">payments</span><div><strong>Investasi:</strong> Rp 75.000 (dari Rp 150.000)</div></li>
                 </ul>
             </div>
-            <div class="info-section">
+            
+            <div class="info-section animate-slide-up" style="animation-delay: 0.2s;">
                 <h2><span class="material-icons-outlined">list_alt</span> Alur Pendaftaran</h2>
                 <ul class="info-list">
                     <li><span class="material-icons-outlined">looks_one</span><div>Isi formulir pendaftaran dengan data lengkap</div></li>
@@ -98,25 +99,27 @@
                     <li><span class="material-icons-outlined">looks_5</span><div>Admin verifikasi & Booking Seat dikonfirmasi</div></li>
                 </ul>
                 <div style="margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="navigateTo('pageForm', document.querySelector('[data-page=\"pageForm\"]'))">
+                    <!-- PERBAIKAN: Menggunakan selector tanpa escaped quotes agar 100% work di semua browser -->
+                    <button class="btn btn-primary pulse-animation" onclick="navigateTo('pageForm', document.querySelector('[data-page=pageForm]'))">
                         <span class="material-icons-outlined">edit_note</span> Daftar Sekarang
                     </button>
                 </div>
             </div>
-            <div class="contact-section">
+            
+            <div class="contact-section animate-slide-up" style="animation-delay: 0.3s;">
                 <h3>Butuh Informasi Lebih Lanjut?</h3>
                 <p>Hubungi kami via WhatsApp untuk konsultasi gratis</p>
-				<a href="https://wa.me/6282246283874?text=Halo%20JEC,%20saya%20ingin%20bertanya%20tentang%20program%20EHP" class="btn btn-wa" target="_blank">
-                    <span class="material-icons-outlined">chat</span>WA > Hubungi Miss Mega
-                </a><br /><br/ >
+                <a href="https://wa.me/6282246283874?text=Halo%20JEC,%20saya%20ingin%20bertanya%20tentang%20program%20EHP" class="btn btn-wa" target="_blank">
+                    <span class="material-icons-outlined">chat</span> Miss Mega
+                </a><br/><br/>
                 <a href="https://wa.me/6285335913758?text=Halo%20JEC,%20saya%20ingin%20bertanya%20tentang%20program%20EHP" class="btn btn-wa" target="_blank">
-                    <span class="material-icons-outlined">chat</span>WA > Hubungi Mr. Jagat
+                    <span class="material-icons-outlined">chat</span> Mr. Jagat
                 </a>
             </div>
         </div>
 
         <div class="page" id="pageForm">
-            <div class="form-card">
+            <div class="form-card animate-slide-up">
                 <h2 class="form-title">Formulir Pendaftaran</h2>
                 <p class="form-subtitle">Lengkapi data berikut untuk mendaftar program EHP</p>
                 <form id="registrationForm" onsubmit="handleSubmit(event)">
@@ -124,7 +127,7 @@
                         <label>Nama Lengkap <span class="required">*</span></label>
                         <div class="input-wrapper"><span class="material-icons-outlined">person</span><input type="text" class="form-control" id="namaLengkap" placeholder="Masukkan nama lengkap" required></div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="input-row">
                         <div class="form-group">
                             <label>Tempat Lahir <span class="required">*</span></label>
                             <div class="input-wrapper"><span class="material-icons-outlined">place</span><input type="text" class="form-control" id="tempat" placeholder="Kota" required></div>
@@ -136,7 +139,17 @@
                     </div>
                     <div class="form-group">
                         <label>Pilih Kelas <span class="required">*</span></label>
-                        <div class="input-wrapper"><span class="material-icons-outlined">class</span><select class="form-control" id="kelasAsli" required><option value="">-- Pilih Kelas --</option><option value="2">Kelas 2 SD</option><option value="3">Kelas 3 SD</option><option value="4">Kelas 4 SD</option><option value="5">Kelas 5 SD</option><option value="6">Kelas 6 SD</option></select></div>
+                        <div class="input-wrapper">
+                            <span class="material-icons-outlined">class</span>
+                            <select class="form-control" id="kelasAsli" required>
+                                <option value="">-- Pilih Kelas --</option>
+                                <option value="2">Kelas 2 SD</option>
+                                <option value="3">Kelas 3 SD</option>
+                                <option value="4">Kelas 4 SD</option>
+                                <option value="5">Kelas 5 SD</option>
+                                <option value="6">Kelas 6 SD</option>
+                            </select>
+                        </div>
                         <div class="class-mapping-info"><span class="material-icons-outlined">info</span><span>Kelas 2 & 3 → <strong>Kelas A</strong> | Kelas 4, 5 & 6 → <strong>Kelas B</strong></span></div>
                     </div>
                     <div class="form-group">
@@ -157,7 +170,7 @@
         </div>
 
         <div class="page" id="pageConfirm">
-            <div class="confirm-card">
+            <div class="confirm-card animate-scale-in">
                 <div class="confirm-icon"><span class="material-icons-outlined">check_circle</span></div>
                 <h2 class="confirm-title">Pendaftaran Berhasil! 🎉</h2>
                 <p class="confirm-text">Data Anda telah tercatat. Silakan pilih metode pembayaran untuk menyelesaikan pendaftaran.</p>
@@ -176,18 +189,18 @@
         </div>
 
         <div class="page" id="pageQuota">
-            <div class="info-section">
+            <div class="info-section animate-slide-up">
                 <h2><span class="material-icons-outlined">event_seat</span> Booking Seat - Kelas A (Grade 2-3)</h2>
                 <div class="seat-list" id="seatListA"><div class="empty-state"><span class="material-icons-outlined">event_busy</span><p>Memuat data...</p></div></div>
             </div>
-            <div class="info-section">
+            <div class="info-section animate-slide-up" style="animation-delay: 0.1s;">
                 <h2><span class="material-icons-outlined">event_seat</span> Booking Seat - Kelas B (Grade 4-6)</h2>
                 <div class="seat-list" id="seatListB"><div class="empty-state"><span class="material-icons-outlined">event_busy</span><p>Memuat data...</p></div></div>
             </div>
         </div>
 
         <div class="page" id="pageAdmin">
-            <div id="adminLogin" class="admin-login">
+            <div id="adminLogin" class="admin-login animate-scale-in">
                 <div class="form-card" style="text-align: center;">
                     <div class="confirm-icon" style="background: linear-gradient(135deg, rgba(79,70,229,0.1), rgba(79,70,229,0.05));"><span class="material-icons-outlined">admin_panel_settings</span></div>
                     <h2 class="form-title">Panel Admin</h2>
@@ -199,7 +212,7 @@
                 </div>
             </div>
             <div id="adminDashboard" style="display: none;">
-                <div class="info-section">
+                <div class="info-section animate-slide-up">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h2 style="margin: 0;"><span class="material-icons-outlined">dashboard</span> Data Pendaftar</h2>
                         <button class="btn btn-outline btn-sm" onclick="adminLogout()" style="width: auto; padding: 8px 12px;"><span class="material-icons-outlined" style="font-size: 16px;">logout</span></button>
@@ -215,7 +228,7 @@
         </div>
     </main>
 
-    <nav class="bottom-nav">
+    <nav class="bottom-nav animate-slide-up">
         <div class="nav-items">
             <div class="nav-item active" data-page="pageInfo" onclick="navigateTo('pageInfo', this)"><span class="material-icons-outlined">info</span><span>Info</span></div>
             <div class="nav-item" data-page="pageForm" onclick="navigateTo('pageForm', this)"><span class="material-icons-outlined">edit_note</span><span>Daftar</span></div>
@@ -223,6 +236,6 @@
         </div>
     </nav>
 
-  <script src="js.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
