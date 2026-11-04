@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-        <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <!-- Primary Meta Tags -->
@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://jagatec.biz.id/ehp">
     <meta property="og:title" content="EHP 2026 - English Holiday Program | JEC Jatirogo">
     <meta property="og:description" content="Program bahasa Inggris liburan sekolah yang seru dan efektif untuk siswa SD kelas 2-6 di JEC Jatirogo. Kuota terbatas hanya 10 siswa per kelas! Daftar sekarang sebelum kehabisan.">
-    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/caksup/ehp@HEAD/ehp-2026.png"> <!-- ehp 2026 -->
+    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/caksup/ehp@HEAD/ehp-2026-v2.png">
     <meta property="og:site_name" content="Jagat Education Center">
     <meta property="og:locale" content="id_ID">
 
@@ -31,19 +31,21 @@
     <meta property="twitter:url" content="https://jagatec.biz.id/ehp">
     <meta property="twitter:title" content="EHP 2026 - English Holiday Program | JEC Jatirogo">
     <meta property="twitter:description" content="Program bahasa Inggris yang seru dan efektif untuk siswa SD kelas 2-6 di JEC Jatirogo. Kuota terbatas, daftar sekarang!">
-    <meta property="twitter:image" content="https://cdn.jsdelivr.net/gh/caksup/ehp@HEAD/ehp-2026.png">
+    <meta property="twitter:image" content="https://cdn.jsdelivr.net/gh/caksup/ehp@HEAD/ehp-2026-v2.png">
 
-    <!-- Existing Styles & Fonts -->
+    <!-- Styles & Fonts -->
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Toast Notification -->
     <div class="toast" id="toast">
         <span class="material-icons-outlined" id="toastIcon">check_circle</span>
         <span id="toastMessage"></span>
     </div>
 
+    <!-- Header -->
     <header class="header animate-slide-down">
         <div class="header-content">
             <div class="logo-section">
@@ -66,6 +68,7 @@
         </div>
     </header>
 
+    <!-- Stats Banner -->
     <div class="stats-banner animate-fade-in" id="statsBanner">
         <div class="stats-grid">
             <div class="stat-card"><span class="material-icons-outlined">group</span><div class="stat-number" id="statTotal">0</div><div class="stat-label">Total Daftar</div></div>
@@ -74,6 +77,7 @@
         </div>
     </div>
 
+    <!-- Quota Section -->
     <div class="quota-section animate-fade-in" id="quotaSection">
         <div class="quota-card">
             <div class="quota-title"><span class="material-icons-outlined">event_seat</span> Kuota Kelas (Maksimal 10 Siswa/Kelas)</div>
@@ -92,6 +96,7 @@
         </div>
     </div>
 
+    <!-- Urgency Banner -->
     <div class="urgency-banner animate-fade-in" id="urgencyBanner">
         <div class="urgency-content">
             <span class="material-icons-outlined">local_fire_department</span>
@@ -99,7 +104,9 @@
         </div>
     </div>
 
+    <!-- Main Content -->
     <main class="main-content">
+        <!-- Page: Info -->
         <div class="page active" id="pageInfo">
             <div class="info-section animate-slide-up">
                 <h2><span class="material-icons-outlined">info</span> Tentang Program EHP 2026 JEC</h2>
@@ -129,7 +136,6 @@
                     <li><span class="material-icons-outlined">looks_5</span><div>Admin verifikasi & Booking Seat dikonfirmasi</div></li>
                 </ul>
                 <div style="margin-top: 20px;">
-                    <!-- PERBAIKAN: Menggunakan selector tanpa escaped quotes agar 100% work di semua browser -->
                     <button class="btn btn-primary pulse-animation" onclick="navigateTo('pageForm', document.querySelector('[data-page=pageForm]'))">
                         <span class="material-icons-outlined">edit_note</span> Daftar Sekarang
                     </button>
@@ -148,14 +154,15 @@
             </div>
         </div>
 
+        <!-- Page: Form -->
         <div class="page" id="pageForm">
             <div class="form-card animate-slide-up">
                 <h2 class="form-title">Formulir Pendaftaran</h2>
                 <p class="form-subtitle">Lengkapi data berikut untuk mendaftar program EHP</p>
                 <form id="registrationForm" onsubmit="handleSubmit(event)">
                     <div class="form-group">
-                        <label>Nama Lengkap <span class="required">*</span></label>
-                        <div class="input-wrapper"><span class="material-icons-outlined">person</span><input type="text" class="form-control" id="namaLengkap" placeholder="Masukkan nama lengkap" required></div>
+                        <label>Nama Lengkap Siswa <span class="required">*</span></label>
+                        <div class="input-wrapper"><span class="material-icons-outlined">person</span><input type="text" class="form-control" id="namaLengkap" placeholder="Masukkan nama lengkap siswa" required></div>
                     </div>
                     <div class="input-row">
                         <div class="form-group">
@@ -191,7 +198,11 @@
                         <div class="input-wrapper"><span class="material-icons-outlined">home</span><textarea class="form-control" id="alamat" placeholder="Alamat lengkap" required></textarea></div>
                     </div>
                     <div class="form-group">
-                        <label>Nomor HP (WhatsApp) <span class="required">*</span></label>
+                        <label>Nama Orang Tua / Wali <span class="required">*</span></label>
+                        <div class="input-wrapper"><span class="material-icons-outlined">family_restroom</span><input type="text" class="form-control" id="namaOrtu" placeholder="Nama orang tua / wali" required></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor HP / WhatsApp <span class="required">*</span></label>
                         <div class="input-wrapper"><span class="material-icons-outlined">phone</span><input type="tel" class="form-control" id="nomorHP" placeholder="08xxxxxxxxxx" required></div>
                     </div>
                     <button type="submit" class="btn btn-primary"><span class="material-icons-outlined">send</span> Kirim Pendaftaran</button>
@@ -199,6 +210,7 @@
             </div>
         </div>
 
+        <!-- Page: Confirmation (fallback jika modal tidak muncul) -->
         <div class="page" id="pageConfirm">
             <div class="confirm-card animate-scale-in">
                 <div class="confirm-icon"><span class="material-icons-outlined">check_circle</span></div>
@@ -218,6 +230,7 @@
             </div>
         </div>
 
+        <!-- Page: Quota -->
         <div class="page" id="pageQuota">
             <div class="info-section animate-slide-up">
                 <h2><span class="material-icons-outlined">event_seat</span> Booking Seat - Kelas A (Grade 2-3)</h2>
@@ -229,6 +242,7 @@
             </div>
         </div>
 
+        <!-- Page: Admin -->
         <div class="page" id="pageAdmin">
             <div id="adminLogin" class="admin-login animate-scale-in">
                 <div class="form-card" style="text-align: center;">
@@ -258,6 +272,37 @@
         </div>
     </main>
 
+    <!-- Modal Konfirmasi Pembayaran -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-content animate-scale-in">
+            <div class="modal-header">
+                <h3><span class="material-icons-outlined">check_circle</span> Pendaftaran Berhasil!</h3>
+                <button class="modal-close" onclick="closePaymentModal()"><span class="material-icons-outlined">close</span></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-text">Data Anda telah tersimpan. Silakan pilih metode pembayaran untuk melanjutkan:</p>
+                <div class="payment-options">
+                    <div class="payment-option" data-method="transfer" onclick="selectPayment(this)">
+                        <span class="material-icons-outlined">account_balance</span>
+                        <div class="payment-option-label">Transfer Bank</div>
+                    </div>
+                    <div class="payment-option" data-method="cash" onclick="selectPayment(this)">
+                        <span class="material-icons-outlined">payments</span>
+                        <div class="payment-option-label">Tunai</div>
+                    </div>
+                    <div class="payment-option" data-method="ewallet" onclick="selectPayment(this)">
+                        <span class="material-icons-outlined">wallet</span>
+                        <div class="payment-option-label">E-Wallet</div>
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="sendWAFromModal()">
+                    <span class="material-icons-outlined">chat</span> Konfirmasi via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
     <nav class="bottom-nav animate-slide-up">
         <div class="nav-items">
             <div class="nav-item active" data-page="pageInfo" onclick="navigateTo('pageInfo', this)"><span class="material-icons-outlined">info</span><span>Info</span></div>
