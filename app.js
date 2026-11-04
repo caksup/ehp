@@ -1,15 +1,13 @@
 // ============================================
-// Configuration - Token di-obfuscate
+// Configuration
 // ============================================
 const _c = ['6285335913758', '2626'];
 const WA_NUMBER = _c[0];
 const ADMIN_PIN = _c[1];
 
-// Token di-encode base64 + split untuk mempersulit reverse
 const _t = ['ZWhw', 'LTIw', 'MjYt', 'amVj', 'LWE4', 'ZjNr', 'OW0y', 'eDdx', 'MQ=='];
 const SECRET_TOKEN = atob(_t.join(''));
 
-// API URL di-split untuk mempersulit scraping
 const _u = [
     'https://script',
     '.google',
@@ -22,9 +20,10 @@ const API_URL = _u.join('');
 let registrationData = {};
 let selectedPayment = '';
 let isAdminLoggedIn = false;
+let allRegistrations = [];
 
 // ============================================
-// Theme
+// Theme & UI Helpers
 // ============================================
 function initTheme() {
     const saved = localStorage.getItem('ehp-theme');
@@ -192,7 +191,7 @@ async function loadStats() {
 }
 
 // ============================================
-// Form
+// Form & Modal
 // ============================================
 async function handleSubmit(event) {
     event.preventDefault();
@@ -207,31 +206,29 @@ async function handleSubmit(event) {
         kelasGrup: kelasGrup,
         asalSekolah: document.getElementById('asalSekolah').value.trim(),
         alamat: document.getElementById('alamat').value.trim(),
+        namaOrtu: document.getElementById('namaOrtu').value.trim(),
         nomorHP: document.getElementById('nomorHP').value.trim()
     };
     const result = await apiCall('register', formData);
     if (result.success) {
         registrationData = { ...formData, id: result.id, waNumber: result.waNumber };
-        showConfirmation(formData);
+        showPaymentModal();
         showToast('Pendaftaran berhasil!', 'success');
         loadStats();
+        document.getElementById('registrationForm').reset();
     } else {
         showToast(result.message || 'Pendaftaran gagal', 'error');
     }
 }
 
-function showConfirmation(data) {
-    const details = document.getElementById('confirmDetails');
-    const tgl = data.tanggalLahir ? new Date(data.tanggalLahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
-    details.innerHTML = `
-        <div class="confirm-detail-row"><span class="confirm-detail-label">ID Pendaftaran</span><span class="confirm-detail-value">${registrationData.id || '-'}</span></div>
-        <div class="confirm-detail-row"><span class="confirm-detail-label">Nama</span><span class="confirm-detail-value">${data.namaLengkap}</span></div>
-        <div class="confirm-detail-row"><span class="confirm-detail-label">TTL</span><span class="confirm-detail-value">${data.tempat}, ${tgl}</span></div>
-        <div class="confirm-detail-row"><span class="confirm-detail-label">Kelas</span><span class="confirm-detail-value">Kelas ${data.kelasAsli} SD → Grup ${data.kelasGrup}</span></div>
-        <div class="confirm-detail-row"><span class="confirm-detail-label">Sekolah</span><span class="confirm-detail-value">${data.asalSekolah}</span></div>
-        <div class="confirm-detail-row"><span class="confirm-detail-label">No. HP</span><span class="confirm-detail-value">${data.nomorHP}</span></div>
-    `;
-    navigateTo('pageConfirm', document.querySelector('[data-page="pageForm"]'));
+function showPaymentModal() {
+    selectedPayment = '';
+    document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+    document.getElementById('paymentModal').classList.add('active');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.remove('active');
 }
 
 function selectPayment(element) {
@@ -240,6 +237,29 @@ function selectPayment(element) {
     selectedPayment = element.dataset.method;
 }
 
+function sendWAFromModal() {
+    if (!selectedPayment) {
+        showToast('Pilih metode pembayaran terlebih dahulu', 'warning');
+        return;
+    }
+    const paymentNames = { 'transfer': 'Transfer Bank', 'cash': 'Tunai', 'ewallet': 'E-Wallet' };
+    const messageText = 
+        '*PENDAFTARAN EHP - JAGAT EDUCATION CENTER*\n\n' +
+        '[ID] ' + registrationData.id + '\n' +
+        '[Nama Siswa] ' + registrationData.namaLengkap + '\n' +
+        '[Nama Orang Tua] ' + (registrationData.namaOrtu || '-') + '\n' +
+        '[TTL] ' + registrationData.tempat + ', ' + registrationData.tanggalLahir + '\n' +
+        '[Kelas] Kelas ' + registrationData.kelasAsli + ' SD (Grup ' + registrationData.kelasGrup + ')\n' +
+        '[Sekolah] ' + registrationData.asalSekolah + '\n' +
+        '[No. HP] ' + registrationData.nomorHP + '\n' +
+        '[Metode Bayar] ' + paymentNames[selectedPayment] + '\n\n' +
+        'Saya ingin melakukan pembayaran. Mohon informasi lebih lanjut. Terima kasih.';
+    const encodedMessage = encodeURIComponent(messageText);
+    window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodedMessage, '_blank');
+    closePaymentModal();
+}
+
+// Fallback redirect (jika user akses pageConfirm langsung)
 function redirectToWA() {
     if (!selectedPayment) {
         showToast('Pilih metode pembayaran terlebih dahulu', 'warning');
@@ -259,6 +279,12 @@ function redirectToWA() {
     const encodedMessage = encodeURIComponent(messageText);
     window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodedMessage, '_blank');
 }
+
+// Tutup modal jika klik di luar area modal
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('paymentModal');
+    if (e.target === modal) closePaymentModal();
+});
 
 // ============================================
 // Booking Seat
@@ -301,7 +327,7 @@ function renderSeatItem(d, index) {
 }
 
 // ============================================
-// Admin
+// Admin Panel
 // ============================================
 async function verifyAdminPin() {
     const pin = document.getElementById('adminPin').value;
@@ -336,6 +362,7 @@ async function loadAdminData() {
     const result = await apiCall('getAll');
     const tbody = document.getElementById('adminTableBody');
     if (result.success && result.data && result.data.length > 0) {
+        allRegistrations = result.data;
         tbody.innerHTML = result.data.map((d, i) => {
             const isPaid = getStatus(d) === 'paid';
             const kelasAsli = getKelasAsli(d) || '-';
@@ -347,7 +374,11 @@ async function loadAdminData() {
                 <td><span class="badge badge-paid">Grup ${kelasGrup}</span></td>
                 <td>${d['Nomor HP'] || d.NomorHP || ''}</td>
                 <td><span class="badge ${isPaid ? 'badge-paid' : 'badge-unpaid'}"><span class="material-icons-outlined" style="font-size: 14px;">${isPaid ? 'check_circle' : 'pending'}</span>${isPaid ? 'Paid' : 'Unpaid'}</span></td>
-                <td><button class="btn ${isPaid ? 'btn-outline' : 'btn-success'} btn-sm" onclick="toggleStatus('${d.ID}', '${isPaid ? 'unpaid' : 'paid'}')"><span class="material-icons-outlined">${isPaid ? 'close' : 'check'}</span>${isPaid ? 'Unpaid' : 'Paid'}</button></td>
+                <td style="display:flex; flex-direction:column; gap:4px;">
+                    <button class="btn btn-primary btn-sm" onclick="sendKonfirmasiWA(${i})" title="Kirim Konfirmasi Pendaftaran"><span class="material-icons-outlined">send</span></button>
+                    <button class="btn ${isPaid ? 'btn-outline' : 'btn-success'} btn-sm" onclick="toggleStatus('${d.ID}', '${isPaid ? 'unpaid' : 'paid'}')" title="${isPaid ? 'Ubah ke Unpaid' : 'Tandai Paid'}"><span class="material-icons-outlined">${isPaid ? 'close' : 'check'}</span></button>
+                    <button class="btn btn-success btn-sm" onclick="sendSudahBayarWA(${i})" title="Kirim Konfirmasi Sudah Bayar"><span class="material-icons-outlined">verified</span></button>
+                </td>
             </tr>`;
         }).join('');
     } else {
@@ -367,7 +398,68 @@ async function toggleStatus(id, newStatus) {
 }
 
 // ============================================
-// Init
+// Admin Tools - WhatsApp Integration
+// ============================================
+function sendKonfirmasiWA(index) {
+    const result = allRegistrations[index];
+    if (!result) return;
+    const nama = result['Nama Lengkap'] || '';
+    const ortu = result['Nama Orang Tua'] || result.namaOrtu || '-';
+    const kelas = result['Kelas Asli'] || result.KelasAsli || '-';
+    const grup = getKelasGrupFromData(result);
+    const sekolah = result['Asal Sekolah'] || '';
+    const hp = result['Nomor HP'] || '';
+    const id = result.ID || '';
+    
+    const messageText = 
+        '*KONFIRMASI PENDAFTARAN EHP 2026*\n' +
+        '*Jagat Education Center - Jatirogo*\n\n' +
+        'Yth. Bapak/Ibu ' + ortu + ',\n\n' +
+        'Kami konfirmasi bahwa putra/putri Anda:\n' +
+        '[Nama] ' + nama + '\n' +
+        '[Kelas] ' + kelas + ' SD (Grup ' + grup + ')\n' +
+        '[Sekolah] ' + sekolah + '\n' +
+        '[ID] ' + id + '\n\n' +
+        'Telah terdaftar dalam program English Holiday Program (EHP) 2026.\n\n' +
+        'Silakan lakukan pembayaran untuk mengamankan seat. Info rekening akan dikirim menyusul.\n\n' +
+        'Terima kasih,\nJEC Jatirogo';
+    
+    let waNumber = hp.replace(/[^0-9]/g, '');
+    if (waNumber.startsWith('0')) waNumber = '62' + waNumber.substring(1);
+    
+    window.open('https://wa.me/' + waNumber + '?text=' + encodeURIComponent(messageText), '_blank');
+}
+
+function sendSudahBayarWA(index) {
+    const result = allRegistrations[index];
+    if (!result) return;
+    const nama = result['Nama Lengkap'] || '';
+    const ortu = result['Nama Orang Tua'] || result.namaOrtu || '-';
+    const kelas = result['Kelas Asli'] || result.KelasAsli || '-';
+    const grup = getKelasGrupFromData(result);
+    const hp = result['Nomor HP'] || '';
+    const id = result.ID || '';
+    
+    const messageText = 
+        '*PEMBAYARAN TERKONFIRMASI*\n' +
+        '*EHP 2026 - Jagat Education Center*\n\n' +
+        'Yth. Bapak/Ibu ' + ortu + ',\n\n' +
+        'Pembayaran untuk:\n' +
+        '[Nama] ' + nama + '\n' +
+        '[Kelas] ' + kelas + ' SD (Grup ' + grup + ')\n' +
+        '[ID] ' + id + '\n\n' +
+        'Telah kami terima dan konfirmasi. Booking seat anak Anda sudah AMAN!\n\n' +
+        'Info lengkap program (jadwal, lokasi, perlengkapan) akan kami kirim H-3 sebelum kelas dimulai.\n\n' +
+        'Terima kasih atas kepercayaan Anda.\nSalam,\nJEC Jatirogo';
+    
+    let waNumber = hp.replace(/[^0-9]/g, '');
+    if (waNumber.startsWith('0')) waNumber = '62' + waNumber.substring(1);
+    
+    window.open('https://wa.me/' + waNumber + '?text=' + encodeURIComponent(messageText), '_blank');
+}
+
+// ============================================
+// Initialization
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
