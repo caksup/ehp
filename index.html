@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://jagatec.biz.id/ehp">
     <meta property="og:title" content="EHP 2026 - English Holiday Program | JEC Jatirogo">
     <meta property="og:description" content="Program bahasa Inggris liburan sekolah yang seru dan efektif untuk siswa SD kelas 2-6 di JEC Jatirogo. Kuota terbatas hanya 10 siswa per kelas! Daftar sekarang sebelum kehabisan.">
-    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/caksup/ehp@HEAD/ehp-2026-v2.png">
+    <meta property="og:image" content="https://cdn.jsdelivr.net/gh/caksup/ehp@HEAD/ehp-2026.png">
     <meta property="og:site_name" content="Jagat Education Center">
     <meta property="og:locale" content="id_ID">
 
@@ -31,7 +31,7 @@
     <meta property="twitter:url" content="https://jagatec.biz.id/ehp">
     <meta property="twitter:title" content="EHP 2026 - English Holiday Program | JEC Jatirogo">
     <meta property="twitter:description" content="Program bahasa Inggris yang seru dan efektif untuk siswa SD kelas 2-6 di JEC Jatirogo. Kuota terbatas, daftar sekarang!">
-    <meta property="twitter:image" content="https://cdn.jsdelivr.net/gh/caksup/ehp@HEAD/ehp-2026-v2.png">
+    <meta property="twitter:image" content="https://cdn.jsdelivr.net/gh/caksup/ehp@HEAD/ehp-2026.png">
 
     <!-- Styles & Fonts -->
     <link rel="stylesheet" href="style.css">
@@ -164,6 +164,20 @@
                         <label>Nama Lengkap Siswa <span class="required">*</span></label>
                         <div class="input-wrapper"><span class="material-icons-outlined">person</span><input type="text" class="form-control" id="namaLengkap" placeholder="Masukkan nama lengkap siswa" required></div>
                     </div>
+                    
+                    <!-- BARU: Jenis Kelamin -->
+                    <div class="form-group">
+                        <label>Jenis Kelamin <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <span class="material-icons-outlined">wc</span>
+                            <select class="form-control" id="jenisKelamin" required>
+                                <option value="">-- Pilih Jenis Kelamin --</option>
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <div class="input-row">
                         <div class="form-group">
                             <label>Tempat Lahir <span class="required">*</span></label>
@@ -210,7 +224,7 @@
             </div>
         </div>
 
-        <!-- Page: Confirmation (fallback jika modal tidak muncul) -->
+        <!-- Page: Confirmation (fallback) -->
         <div class="page" id="pageConfirm">
             <div class="confirm-card animate-scale-in">
                 <div class="confirm-icon"><span class="material-icons-outlined">check_circle</span></div>
@@ -256,6 +270,7 @@
                 </div>
             </div>
             <div id="adminDashboard" style="display: none;">
+                <!-- Section 1: Data Pendaftar (Ringkasan) -->
                 <div class="info-section animate-slide-up">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h2 style="margin: 0;"><span class="material-icons-outlined">dashboard</span> Data Pendaftar</h2>
@@ -263,8 +278,39 @@
                     </div>
                     <div class="admin-table-wrapper">
                         <table class="admin-table">
-                            <thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Grup</th><th>HP</th><th>Status</th><th>Aksi</th></tr></thead>
-                            <tbody id="adminTableBody"><tr><td colspan="7" style="text-align: center; padding: 30px;">Memuat data...</td></tr></tbody>
+                            <thead><tr><th>No</th><th>Nama</th><th>JK</th><th>Kelas</th><th>Grup</th><th>HP</th><th>Status</th><th>Aksi</th></tr></thead>
+                            <tbody id="adminTableBody"><tr><td colspan="8" style="text-align: center; padding: 30px;">Memuat data...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BARU: Section 2 - Tabel Lengkap -->
+                <div class="info-section animate-slide-up" style="margin-top: 16px;">
+                    <h2 style="margin-bottom: 16px;"><span class="material-icons-outlined">table_chart</span> Tabel Lengkap Pendaftar</h2>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">Data detail seluruh pendaftar (scroll horizontal untuk melihat semua kolom)</p>
+                    <div class="admin-table-wrapper" style="overflow-x: auto;">
+                        <table class="admin-table" id="fullDataTable" style="min-width: 1200px;">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>ID</th>
+                                    <th>Tgl Daftar</th>
+                                    <th>Nama Siswa</th>
+                                    <th>JK</th>
+                                    <th>TTL</th>
+                                    <th>Kelas</th>
+                                    <th>Grup</th>
+                                    <th>Asal Sekolah</th>
+                                    <th>Alamat</th>
+                                    <th>Nama Ortu</th>
+                                    <th>No. HP</th>
+                                    <th>Status</th>
+                                    <th>Metode Bayar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fullDataTableBody">
+                                <tr><td colspan="14" style="text-align: center; padding: 30px;">Memuat data...</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
