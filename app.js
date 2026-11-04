@@ -118,6 +118,11 @@ function getStatus(d) { return (d.Status || d.status || '').toString().toLowerCa
 function getNama(d) { return d['Nama Lengkap'] || d.NamaLengkap || d.nama || ''; }
 function getSekolah(d) { return d['Asal Sekolah'] || d.AsalSekolah || d.sekolah || ''; }
 function getTimestamp(d) { return d['TimestampISO'] || d.TimestampISO || d.Timestamp || d.timestamp || ''; }
+function getJK(d) { 
+    const jk = d['Jenis Kelamin'] || d.jenisKelamin || d.JK || ''; 
+    return jk === 'L' ? 'L' : (jk === 'P' ? 'P' : '-'); 
+}
+function getJKText(jk) { return jk === 'L' ? 'Laki-laki' : (jk === 'P' ? 'Perempuan' : '-'); }
 
 // ============================================
 // Navigation
@@ -160,12 +165,15 @@ async function apiCall(action, data = {}) {
     try {
         const params = new URLSearchParams({ action, token: SECRET_TOKEN, ...data });
         const url = `${API_URL}?${params.toString()}`;
+        console.log('[API] Calling:', action);
         const response = await fetch(url);
         const result = await response.json();
+        console.log('[API] Response:', action, result.success ? 'OK' : 'FAIL');
         showLoading(false);
         return result;
     } catch (error) {
         showLoading(false);
+        console.error('[API] Error:', error);
         showToast('Terjadi kesalahan koneksi.', 'error');
         return { success: false, message: error.toString() };
     }
@@ -200,6 +208,7 @@ async function handleSubmit(event) {
     const formData = {
         action: 'register',
         namaLengkap: document.getElementById('namaLengkap').value.trim(),
+        jenisKelamin: document.getElementById('jenisKelamin').value,
         tempat: document.getElementById('tempat').value.trim(),
         tanggalLahir: document.getElementById('tanggalLahir').value,
         kelasAsli: kelasAsli,
@@ -209,6 +218,7 @@ async function handleSubmit(event) {
         namaOrtu: document.getElementById('namaOrtu').value.trim(),
         nomorHP: document.getElementById('nomorHP').value.trim()
     };
+    console.log('[Form] Submitting:', formData);
     const result = await apiCall('register', formData);
     if (result.success) {
         registrationData = { ...formData, id: result.id, waNumber: result.waNumber };
@@ -243,10 +253,12 @@ function sendWAFromModal() {
         return;
     }
     const paymentNames = { 'transfer': 'Transfer Bank', 'cash': 'Tunai', 'ewallet': 'E-Wallet' };
+    const jkText = getJKText(registrationData.jenisKelamin);
     const messageText = 
         '*PENDAFTARAN EHP - JAGAT EDUCATION CENTER*\n\n' +
         '[ID] ' + registrationData.id + '\n' +
         '[Nama Siswa] ' + registrationData.namaLengkap + '\n' +
+        '[JK] ' + jkText + '\n' +
         '[Nama Orang Tua] ' + (registrationData.namaOrtu || '-') + '\n' +
         '[TTL] ' + registrationData.tempat + ', ' + registrationData.tanggalLahir + '\n' +
         '[Kelas] Kelas ' + registrationData.kelasAsli + ' SD (Grup ' + registrationData.kelasGrup + ')\n' +
@@ -259,7 +271,6 @@ function sendWAFromModal() {
     closePaymentModal();
 }
 
-// Fallback redirect (jika user akses pageConfirm langsung)
 function redirectToWA() {
     if (!selectedPayment) {
         showToast('Pilih metode pembayaran terlebih dahulu', 'warning');
@@ -280,7 +291,6 @@ function redirectToWA() {
     window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodedMessage, '_blank');
 }
 
-// Tutup modal jika klik di luar area modal
 document.addEventListener('click', function(e) {
     const modal = document.getElementById('paymentModal');
     if (e.target === modal) closePaymentModal();
@@ -358,31 +368,108 @@ function adminLogout() {
     navigateTo('pageInfo', document.querySelector('[data-page="pageInfo"]'));
 }
 
+// ============================================
+// ADMIN DATA LOADING - FIXED dengan error handling
+// ============================================
 async function loadAdminData() {
-    const result = await apiCall('getAll');
+    console.log('[Admin] Loading data...');
+    
+    // Set loading state
     const tbody = document.getElementById('adminTableBody');
-    if (result.success && result.data && result.data.length > 0) {
-        allRegistrations = result.data;
-        tbody.innerHTML = result.data.map((d, i) => {
+    const fullTbody = document.getElementById('fullDataTableBody');
+    
+    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px;">Memuat data...</td></tr>';
+    if (fullTbody) fullTbody.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 30px;">Memuat data...</td></tr>';
+
+    const result = await apiCall('getAll');
+    console.log('[Admin] API result:', result);
+
+    if (!result.success) {
+        console.error('[Admin] API failed:', result.message);
+        if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--danger);">Gagal memuat data</td></tr>';
+        if (fullTbody) fullTbody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding:20px; color:var(--danger);">Gagal memuat data</td></tr>';
+        return;
+    }
+
+    if (!result.data || result.data.length === 0) {
+        console.log('[Admin] No data');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px;">Belum ada data pendaftar</td></tr>';
+        if (fullTbody) fullTbody.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 30px;">Belum ada data pendaftar</td></tr>';
+        return;
+    }
+
+    allRegistrations = result.data;
+    console.log('[Admin] Data count:', result.data.length);
+
+    // 1. Render Summary Table
+    try {
+        const summaryRows = result.data.map((d, i) => {
             const isPaid = getStatus(d) === 'paid';
             const kelasAsli = getKelasAsli(d) || '-';
             const kelasGrup = getKelasGrupFromData(d) || '-';
+            const jk = getJK(d);
             return `<tr>
                 <td>${i + 1}</td>
                 <td><strong>${getNama(d)}</strong><br><small style="color: var(--text-secondary);">${getSekolah(d)}</small></td>
+                <td style="text-align:center; font-weight:bold;">${jk}</td>
                 <td><span style="font-weight:600; color: var(--primary);">Kelas ${kelasAsli}</span></td>
                 <td><span class="badge badge-paid">Grup ${kelasGrup}</span></td>
                 <td>${d['Nomor HP'] || d.NomorHP || ''}</td>
                 <td><span class="badge ${isPaid ? 'badge-paid' : 'badge-unpaid'}"><span class="material-icons-outlined" style="font-size: 14px;">${isPaid ? 'check_circle' : 'pending'}</span>${isPaid ? 'Paid' : 'Unpaid'}</span></td>
                 <td style="display:flex; flex-direction:column; gap:4px;">
-                    <button class="btn btn-primary btn-sm" onclick="sendKonfirmasiWA(${i})" title="Kirim Konfirmasi Pendaftaran"><span class="material-icons-outlined">send</span></button>
-                    <button class="btn ${isPaid ? 'btn-outline' : 'btn-success'} btn-sm" onclick="toggleStatus('${d.ID}', '${isPaid ? 'unpaid' : 'paid'}')" title="${isPaid ? 'Ubah ke Unpaid' : 'Tandai Paid'}"><span class="material-icons-outlined">${isPaid ? 'close' : 'check'}</span></button>
-                    <button class="btn btn-success btn-sm" onclick="sendSudahBayarWA(${i})" title="Kirim Konfirmasi Sudah Bayar"><span class="material-icons-outlined">verified</span></button>
+                    <button class="btn btn-primary btn-sm" onclick="sendKonfirmasiWA(${i})" title="Kirim Konfirmasi"><span class="material-icons-outlined">send</span></button>
+                    <button class="btn ${isPaid ? 'btn-outline' : 'btn-success'} btn-sm" onclick="toggleStatus('${d.ID}', '${isPaid ? 'unpaid' : 'paid'}')" title="${isPaid ? 'Unpaid' : 'Paid'}"><span class="material-icons-outlined">${isPaid ? 'close' : 'check'}</span></button>
+                    <button class="btn btn-success btn-sm" onclick="sendSudahBayarWA(${i})" title="Konfirmasi Bayar"><span class="material-icons-outlined">verified</span></button>
                 </td>
             </tr>`;
         }).join('');
-    } else {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Belum ada data pendaftar</td></tr>`;
+        
+        if (tbody) tbody.innerHTML = summaryRows;
+        console.log('[Admin] Summary table rendered');
+    } catch (err) {
+        console.error('[Admin] Error render summary:', err);
+        if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--danger);">Error render tabel</td></tr>';
+    }
+
+    // 2. Render Full Data Table
+    try {
+        const fullRows = result.data.map((d, i) => {
+            const isPaid = getStatus(d) === 'paid';
+            const kelasAsli = getKelasAsli(d) || '-';
+            const kelasGrup = getKelasGrupFromData(d) || '-';
+            const jk = getJK(d);
+            const tempat = d['Tempat Lahir'] || d.TempatLahir || '-';
+            const tglLahir = d['Tanggal Lahir'] || d.TanggalLahir || '-';
+            const ttl = `${tempat}, ${tglLahir}`;
+            const tglDaftar = formatDateIndo(parseDateRobust(getTimestamp(d)));
+            const metode = d['Metode Pembayaran'] || d.MetodePembayaran || '-';
+            const alamat = d['Alamat'] || d.Alamat || '-';
+            const namaOrtu = d['Nama Orang Tua'] || d.NamaOrtu || '-';
+            const hp = d['Nomor HP'] || d.NomorHP || '';
+            
+            return `<tr>
+                <td>${i + 1}</td>
+                <td style="font-size:10px;">${d.ID || '-'}</td>
+                <td style="font-size:11px;">${tglDaftar}</td>
+                <td><strong>${getNama(d)}</strong></td>
+                <td style="text-align:center;">${jk}</td>
+                <td style="font-size:11px;">${ttl}</td>
+                <td>${kelasAsli}</td>
+                <td>${kelasGrup}</td>
+                <td style="font-size:11px;">${getSekolah(d)}</td>
+                <td style="font-size:10px; max-width:150px; word-wrap:break-word;">${alamat}</td>
+                <td style="font-size:11px;">${namaOrtu}</td>
+                <td style="font-size:11px;">${hp}</td>
+                <td><span class="badge ${isPaid ? 'badge-paid' : 'badge-unpaid'}">${isPaid ? 'Paid' : 'Unpaid'}</span></td>
+                <td style="font-size:11px;">${metode}</td>
+            </tr>`;
+        }).join('');
+        
+        if (fullTbody) fullTbody.innerHTML = fullRows;
+        console.log('[Admin] Full table rendered');
+    } catch (err) {
+        console.error('[Admin] Error render full table:', err);
+        if (fullTbody) fullTbody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding:20px; color:var(--danger);">Error render tabel lengkap</td></tr>';
     }
 }
 
@@ -405,6 +492,8 @@ function sendKonfirmasiWA(index) {
     if (!result) return;
     const nama = result['Nama Lengkap'] || '';
     const ortu = result['Nama Orang Tua'] || result.namaOrtu || '-';
+    const jkRaw = result['Jenis Kelamin'] || result.jenisKelamin || result.JK || '';
+    const jkText = getJKText(jkRaw);
     const kelas = result['Kelas Asli'] || result.KelasAsli || '-';
     const grup = getKelasGrupFromData(result);
     const sekolah = result['Asal Sekolah'] || '';
@@ -416,7 +505,7 @@ function sendKonfirmasiWA(index) {
         '*Jagat Education Center - Jatirogo*\n\n' +
         'Yth. Bapak/Ibu ' + ortu + ',\n\n' +
         'Kami konfirmasi bahwa putra/putri Anda:\n' +
-        '[Nama] ' + nama + '\n' +
+        '[Nama] ' + nama + ' (' + jkText + ')\n' +
         '[Kelas] ' + kelas + ' SD (Grup ' + grup + ')\n' +
         '[Sekolah] ' + sekolah + '\n' +
         '[ID] ' + id + '\n\n' +
@@ -462,6 +551,7 @@ function sendSudahBayarWA(index) {
 // Initialization
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('[App] DOM loaded');
     initTheme();
     loadStats();
     handleHash();
